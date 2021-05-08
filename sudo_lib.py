@@ -91,4 +91,5 @@ def displayer(p):
     else:
         print(p)
     
-displayer(gen_puzzul(1))
+if __name__ == '__main__':
+    displayer(gen_puzzul(1))
