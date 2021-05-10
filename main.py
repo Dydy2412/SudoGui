@@ -13,6 +13,7 @@ class App(tk.Frame):
         self.pack(expand=True)
 
         self.helv36 = tkFont.Font(self, family='Helvetica', size=36, weight='bold')
+        self.helv20 = tkFont.Font(self, family='Helvetica', size=20, weight='bold')
 
         self.sudo = Sudoku(self, self.helv36)
         self.buttons = Commands(self, font=self.helv36, sudoku=self.sudo)
@@ -81,14 +82,16 @@ class Commands(tk.Frame):
         self.load_widget()
 
     def load_widget(self):
+        
+        numpad = Numpad(master=self, font=self.font, sudoku=self.sudoku, relief='groove')
 
         self.columnconfigure(0, weight=1)
         Gen_Button = tk.Button(self, text='Generate', font=self.font, relief='groove', borderwidth=3)
-        Gen_Button.grid(column=0, row=0, sticky='nsew')
+        Gen_Button.grid(column=0, row=1, sticky='nsew')
 
         self.columnconfigure(1, weight=1)
         Verif_Button = tk.Button(self, text='Check', font=self.font, relief='groove', borderwidth=3, command=self.on_check)
-        Verif_Button.grid(column=1, row=0, sticky='nsew')
+        Verif_Button.grid(column=1, row=1, sticky='nsew')
 
     def on_check(self):
         self.sudoku.set_input(0, 0, '5')
@@ -106,6 +109,33 @@ class SudoEntry(tk.Entry):
     def on_write(self, var):
         if len(var.get()) > 0:
             var.set(var.get()[:1])
+            try:
+                int(var.get())
+            except:
+                var.set('')
+
+    def set(self, value):
+        self.var.set(value)
+
+class Numpad(tk.Frame):
+
+    def __init__(self, master, font, sudoku, relief):
+        super().__init__(master=master)
+        self.grid(row=0, column=0, columnspan=2)
+
+        self.numkeys = [NumKey(self, i, font, sudoku, relief) for i in range(0,10)]
+
+class NumKey(tk.Button):
+
+    def __init__(self, master=None, index=None, font=None, sudoku=None, relief=None):
+        super().__init__(master=master, font=font, text=str(index) if index > 0 else 'X', relief=relief, command= lambda *args : self.on_input(index, sudoku))
+        self.grid(row=0, column=index)
+
+    def on_input(self, index, sudoku):
+        try:
+            sudoku.focus_get().set(index if index > 0 else '')
+        except:
+            print('select any column')
 
 root = tk.Tk()
 app = App(root)
