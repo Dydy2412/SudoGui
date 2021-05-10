@@ -113,7 +113,7 @@ class Commands(tk.Frame):
 class SudoEntry(tk.Entry):
 
     def __init__(self, master=None, font=None, justify=None, width = 1, borderwidth=0, relief=None, row=0, column=0):
-        super().__init__(master=master, justify=justify, width = width, font=font, borderwidth=borderwidth, relief=relief)
+        super().__init__(master=master, justify=justify, width = width, font=font, borderwidth=borderwidth, relief=relief, disabledbackground='#eee', disabledforeground='#666')
         self.grid(row=row, column=column)
 
         self.var = tk.StringVar(self)
