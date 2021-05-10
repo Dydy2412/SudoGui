@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.font as tkFont
-from sudo_lib import displayer
+from sudo_lib import displayer,gen_puzzul
 from time import time
 from uuid import uuid1
 
@@ -40,11 +40,20 @@ class Sudoku(tk.Frame):
     def set_input(self, x, y, data):
         self.get_var(x,y).set(data)
 
+    def set_sudo(self, li):
+        for i in range(9):
+            for j in range(9):
+                self.set_input(i,j,'')
+                self.get_cell(i, j).config(state=tk.NORMAL)
+                if li[i][j] != 0:
+                    self.set_input(i, j, li[i][j])
+                    self.get_cell(i, j).config(state=tk.DISABLED)
+
     def get_sudo(self):
         return self.sudo_input
 
     def get_cell(self,x,y):
-        return self.sudo_input[x//3][y//3].get_patchs()[x%3][y%3]
+        return self.sudo_input[x//3][y//3].get_patchs()[y%3][x%3]
 
     def get_var(self, x, y):
         return self.get_cell(x, y).var
@@ -86,7 +95,7 @@ class Commands(tk.Frame):
         numpad = Numpad(master=self, font=self.font, sudoku=self.sudoku, relief='groove')
 
         self.columnconfigure(0, weight=1)
-        Gen_Button = tk.Button(self, text='Generate', font=self.font, relief='groove', borderwidth=3)
+        Gen_Button = tk.Button(self, text='Generate', font=self.font, relief='groove', borderwidth=3, command=self.on_generate)
         Gen_Button.grid(column=0, row=1, sticky='nsew')
 
         self.columnconfigure(1, weight=1)
@@ -95,6 +104,11 @@ class Commands(tk.Frame):
 
     def on_check(self):
         self.sudoku.set_input(0, 0, '5')
+
+    def on_generate(self):
+        new_puzzle = gen_puzzul(3)
+        displayer(new_puzzle)
+        self.sudoku.set_sudo(new_puzzle[0])
 
 class SudoEntry(tk.Entry):
 
