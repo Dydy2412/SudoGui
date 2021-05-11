@@ -58,6 +58,19 @@ class Sudoku(tk.Frame):
     def get_var(self, x, y):
         return self.get_cell(x, y).var
 
+    def get_cells(self):
+        out = []
+        for i in range(9):
+            row = []
+            for j in range(9):
+                try:
+                    row.append(int(self.get_cell(i,j).get()))
+                except ValueError:
+                    row.append(0)
+            out.append(row)
+        
+        return out
+
 class Patch(tk.Frame):
 
     def __init__(self, master=None, i=0, j=0, font=None):
@@ -87,6 +100,7 @@ class Commands(tk.Frame):
 
         self.font = font
         self.sudoku = sudoku
+        self.solution = None
 
         self.load_widget()
 
@@ -103,11 +117,13 @@ class Commands(tk.Frame):
         Verif_Button.grid(column=1, row=1, sticky='nsew')
 
     def on_check(self):
-        self.sudoku.set_input(0, 0, '5')
+        displayer(self.sudoku.get_cells())
 
     def on_generate(self):
-        new_puzzle = gen_puzzul(3)
+        self.focus()
+        new_puzzle = gen_puzzul(5)
         displayer(new_puzzle)
+        self.solution = new_puzzle[1]
         self.sudoku.set_sudo(new_puzzle[0])
 
 class SudoEntry(tk.Entry):
