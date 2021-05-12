@@ -1,8 +1,7 @@
 import tkinter as tk
 import tkinter.font as tkFont
 from sudo_lib import displayer,gen_puzzul
-from time import time
-from uuid import uuid1
+from random import randint
 
 TITLE = 'SudoDydy'
 
@@ -71,6 +70,11 @@ class Sudoku(tk.Frame):
         
         return out
 
+    def config_cells(self, **kwargs):
+        for i in range(9):
+            for j in range(9):
+                self.get_cell(i,j).config(kwargs)
+
 class Patch(tk.Frame):
 
     def __init__(self, master=None, i=0, j=0, font=None):
@@ -101,30 +105,60 @@ class Commands(tk.Frame):
         self.font = font
         self.sudoku = sudoku
         self.solution = None
+        self.levelText = None
 
         self.load_widget()
 
     def load_widget(self):
         
+        self.levelText = tk.Label(self, text='Level: ', font=self.font, relief='groove')
+        self.levelText.grid(column=0, row=0, columnspan=2, sticky='nsew')
         numpad = Numpad(master=self, font=self.font, sudoku=self.sudoku, relief='groove')
 
         self.columnconfigure(0, weight=1)
         Gen_Button = tk.Button(self, text='Generate', font=self.font, relief='groove', borderwidth=3, command=self.on_generate)
-        Gen_Button.grid(column=0, row=1, sticky='nsew')
+        Gen_Button.grid(column=0, row=2, sticky='nsew')
 
         self.columnconfigure(1, weight=1)
         Verif_Button = tk.Button(self, text='Check', font=self.font, relief='groove', borderwidth=3, command=self.on_check)
-        Verif_Button.grid(column=1, row=1, sticky='nsew')
+        Verif_Button.grid(column=1, row=2, sticky='nsew')
 
     def on_check(self):
-        displayer(self.sudoku.get_cells())
+        if self.solution:
+            if self.sudoku.get_cells() == self.solution:
+                self.sudoku.config_cells(state=tk.DISABLED, disabledbackground='#eee', disabledforeground='#00dd00')
+                self.solution = None
+            else:
+                for i in range(9):
+                    for j in range(9):
+                        cell = self.sudoku.get_cell(i,j)
+                        if cell.get() != str(self.solution[i][j]):
+                            cell.config(background='#fff5b8', foreground='#ff0000') 
+
 
     def on_generate(self):
+        self.sudoku.config_cells(background='#fff', foreground='#000', disabledbackground='#eee', disabledforeground='#666')
         self.focus()
-        new_puzzle = gen_puzzul(5)
-        displayer(new_puzzle)
+        level = randint(1,5)
+        new_puzzle = gen_puzzul(level)
         self.solution = new_puzzle[1]
         self.sudoku.set_sudo(new_puzzle[0])
+        self.levelText.config(text=self.set_text_level(level))
+
+    def set_text_level(self, level):
+        out = ''
+        if level == 1:
+            out = 'Mortal'
+        elif level == 2:
+            out = 'Hard'
+        elif level == 3:
+            out = 'Normal'
+        elif level == 4:
+            out = 'Easy'
+        elif level == 5:
+            out = 'Baby'
+        
+        return 'Level : ' + out
 
 class SudoEntry(tk.Entry):
 
@@ -137,6 +171,7 @@ class SudoEntry(tk.Entry):
         self.var.trace_add('write', lambda *args : self.on_write(self.var))
 
     def on_write(self, var):
+        self.config(background='#fff', foreground='#000')
         if len(var.get()) > 0:
             var.set(var.get()[:1])
             try:
@@ -151,7 +186,7 @@ class Numpad(tk.Frame):
 
     def __init__(self, master, font, sudoku, relief):
         super().__init__(master=master)
-        self.grid(row=0, column=0, columnspan=2)
+        self.grid(row=1, column=0, columnspan=2)
 
         self.numkeys = [NumKey(self, i, font, sudoku, relief) for i in range(0,10)]
 
